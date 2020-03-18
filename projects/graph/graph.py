@@ -210,7 +210,7 @@ class Graph:
             path = []
 
         # Check if the node has been visited
-        # If not...
+        # If not...  
         if starting_vertex not in visisted:
 
             # add vertex to path 
@@ -229,6 +229,7 @@ class Graph:
                 #store the return in a var
                 stored_path = self.dfs_recursive(neighbor, desitination_vertex, visisted, path_copy)
 
+                # check returns for returned path
                 if stored_path is not None:
                     return stored_path
 
