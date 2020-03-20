@@ -77,13 +77,19 @@ def bfs(starting_vertex):
         if v not in visited:
             # Mark it as visited
             visited.add(v)
+
             # CHECK all directions for '?'
             for direction in visited_dirs[v]:
+
+                # if a '?' is found
                 if visited_dirs[v][direction] == "?":
-                    # IF SO, RETURN THE PATH
+                    # IF SO, RETURN THE A TRAVERSAL TO THAT ROOM
                     traversal = []
+
                     for i in range(len(path)):
-                        if path[i][1] != None:
+
+                        #TODO CLEANUP 
+                        if path[i][1] is not None:
                             traversal.append(path[i][1])
                     return traversal
 
@@ -97,9 +103,7 @@ def bfs(starting_vertex):
                 q.enqueue(path_copy)
     return False
 
-'''
-Start by writing an algorithm that picks a random unexplored direction from the player's current room, travels and logs that direction, then loops. This should cause your player to walk a depth-first traversal. When you reach a dead-end (i.e. a room with no unexplored paths), walk back to the nearest room that does contain an unexplored path.
-'''
+#make a function that takes in a dir and returns the oppisite direction
 def get_opposite_dir(dir):
     if dir == 'n':
         return 's'
@@ -130,8 +134,9 @@ for room_id in world.rooms:
 
         # asign a value of '?'  for each exit
         visited_dirs[room_id][exit_dir] = '?'
-loop = True
-while loop:
+
+
+while True:
     room_id = player.current_room.id
     direction = None
 
@@ -150,45 +155,28 @@ while loop:
             # walk that path and continue   
             for move in search:
                 player.travel(move)
+        # if bfs  returns false
         else:
-            loop = False
-
-            # if bft dosent return anything break loop
-    prev_room_id = player.current_room.id
-
-
-    player.travel(direction)
-
-    room_id = player.current_room.id
-
-    #assign prev room the direction to current_room id
-    visited_dirs[prev_room_id][direction] = room_id
-
-    #assign current rooms id to oppisite direction from wich we traveled
-    opposite_dir = get_opposite_dir(direction)
-    visited_dirs[room_id][opposite_dir] = prev_room_id
-
-    traversal_path.append(direction)
+            break
+    else:        
+        prev_room_id = player.current_room.id
 
 
+        player.travel(direction)
+
+        room_id = player.current_room.id
+
+        #assign prev room the direction to current_room id
+        visited_dirs[prev_room_id][direction] = room_id
+
+        #assign current rooms id to oppisite direction from wich we traveled
+        opposite_dir = get_opposite_dir(direction)
+        visited_dirs[room_id][opposite_dir] = prev_room_id
+
+        traversal_path.append(direction)
 
 
-'''
-You can find the path to the shortest unexplored room by using a breadth-first search for a room with a `'?'` for an exit. If you use the `bfs` code from the homework, you will need to make a few modifications.
-'''
-
-
-
-
-'''
-1. Instead of searching for a target vertex, you are searching for an exit with a `'?'` as the value. If an exit has been explored, you can put it in your BFS queue like normal.
-
-2. BFS will return the path as a list of room IDs. You will need to convert this to a list of n/s/e/w directions before you can add it to your traversal path.
-
-If all paths have been explored, you're done!
-
-You know you are done when you have exactly 500 entries (0-499) in your graph and no `'?'` in the adjacency dictionaries. To do this, you will need to write a traversal algorithm that logs the path into `traversal_path` as it walks.
-'''
+    
 
 # TRAVERSAL TEST
 visited_rooms = set()
