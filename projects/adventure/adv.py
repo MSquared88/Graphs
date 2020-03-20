@@ -28,29 +28,7 @@ world.print_rooms()
 
 player = Player(world.starting_room)
 
-# Fill this out with directions to walk
-# traversal_path = ['n', 'n']
-traversal_path = []
-
-
-'''
-To solve this path, you'll want to construct your own traversal graph. You start in room 0, which contains exits ['n', 's', 'w', 'e']. Your starting graph should look something like this:
-
-{
-  0: {'n': '?', 's': '?', 'w': '?', 'e': '?'}
-}
-Try moving south and you will find yourself in room 5 which contains exits ['n', 's', 'e']. You can now fill in some entries in your graph:
-
-{
-  0: {'n': '?', 's': 5, 'w': '?', 'e': '?'},
-  5: {'n': 0, 's': '?', 'e': '?'}
-}
-
-'''
-
-
-
-def bfs(starting_vertex):
+def adv_bfs(starting_vertex):
     """
     Return a list containing the shortest path from
     starting_vertex to destination_vertex in
@@ -79,10 +57,10 @@ def bfs(starting_vertex):
             visited.add(v)
 
             # CHECK all directions for '?'
-            for direction in visited_dirs[v]:
+            for direction in adjacency_dict[v]:
 
                 # if a '?' is found
-                if visited_dirs[v][direction] == "?":
+                if adjacency_dict[v][direction] == "?":
                     # IF SO, RETURN THE A TRAVERSAL TO THAT ROOM
                     traversal = []
 
@@ -94,15 +72,14 @@ def bfs(starting_vertex):
                     return traversal
 
             # Enqueue A PATH TO all it's neighbors
-            for neighbor in visited_dirs[v]:
+            for neighbor in adjacency_dict[v]:
                 # MAKE A COPY OF THE PATH
                 path_copy = path.copy()
 
                 # ENQUEUE THE COPY
-                path_copy.append([visited_dirs[v][neighbor], neighbor])
+                path_copy.append([adjacency_dict[v][neighbor], neighbor])
                 q.enqueue(path_copy)
     return False
-
 #make a function that takes in a dir and returns the oppisite direction
 def get_opposite_dir(dir):
     if dir == 'n':
@@ -117,8 +94,13 @@ def get_opposite_dir(dir):
     elif dir == 'e':
         return 'w'
 
-visited_dirs = {}
 
+
+# Fill this out with directions to walk
+# traversal_path = ['n', 'n']
+traversal_path = []
+
+adjacency_dict = {}
 
 # make an adjacency dictionary with all possible directions
 #iterate through all the rooms in the world
@@ -128,12 +110,12 @@ for room_id in world.rooms:
     for exit_dir in world.rooms[room_id].get_exits():
 
         # if the room object hasnt been created yet
-        if room_id not in  visited_dirs.keys():
+        if room_id not in  adjacency_dict.keys():
             # create an dictionary for that room 
-            visited_dirs[room_id] = dict()
+            adjacency_dict[room_id] = dict()
 
         # asign a value of '?'  for each exit
-        visited_dirs[room_id][exit_dir] = '?'
+        adjacency_dict[room_id][exit_dir] = '?'
 
 
 while True:
@@ -142,12 +124,15 @@ while True:
 
     # choose a direction from current rooms exits
     for exit_dir in player.current_room.get_exits():
-        if visited_dirs[room_id][exit_dir] == '?':
+        if adjacency_dict[room_id][exit_dir] == '?':
             direction = exit_dir
+
+    # if no unexplored direction 
     if direction == None:
-        # do a bfs searching for exit with '?'
-        search = bfs(room_id)
-        # if bfs returns a path 
+        # do a adv_bfs searching for exit with '?'
+        search = adv_bfs(room_id)
+
+        # if adv_bfs returns a path 
         if search != False:
             # add path to the traversal_path
             traversal_path += search
@@ -155,9 +140,12 @@ while True:
             # walk that path and continue   
             for move in search:
                 player.travel(move)
-        # if bfs  returns false
+
+        # if adv_bfs  returns false
         else:
             break
+
+    #otherwise travel in selected direction and mark rooms in adjacency_dict
     else:        
         prev_room_id = player.current_room.id
 
@@ -167,16 +155,13 @@ while True:
         room_id = player.current_room.id
 
         #assign prev room the direction to current_room id
-        visited_dirs[prev_room_id][direction] = room_id
+        adjacency_dict[prev_room_id][direction] = room_id
 
         #assign current rooms id to oppisite direction from wich we traveled
         opposite_dir = get_opposite_dir(direction)
-        visited_dirs[room_id][opposite_dir] = prev_room_id
+        adjacency_dict[room_id][opposite_dir] = prev_room_id
 
         traversal_path.append(direction)
-
-
-    
 
 # TRAVERSAL TEST
 visited_rooms = set()
