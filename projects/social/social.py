@@ -93,10 +93,18 @@ class SocialGraph:
 
 
         while q.size() > 0:
+            # dequeue path
             path = q.dequeue()
+
+            # get last user from end of path
             u = path[-1]
+
+            # if the user has not been visited
             if u not in visited:
+                # add a path to that  user to visited dict with user id as key
                 visited[u] = path
+
+                # enqueue paths to each friend
                 for friend in self.get_friendships(u):
                     path_copy = path.copy()
                     path_copy.append(friend)
